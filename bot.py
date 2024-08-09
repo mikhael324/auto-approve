@@ -42,6 +42,13 @@ def approve_and_store_user(client, message):
         # Approve the join request
         client.approve_chat_join_request(chat_id, user_id)
         print(f"Approved join request for user {user_id}")
+        
+        # Send a message to the user
+        client.send_message(
+            chat_id=user_id,
+            text=f"Hi {first_name}, your request to join the channel has been accepted! Welcome!"
+        )
+        print(f"Sent welcome message to user {user_id}")
 
     except PyMongoError as e:
         print(f"Failed to store user {user_id} in MongoDB: {e}")

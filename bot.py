@@ -20,13 +20,38 @@ except PyMongoError as e:
 
 # Automatically approve all join requests
 @Bot.on_chat_join_request()
-def approve_all_requests(client, message):
-    chat_id = message.chat.id
-    user_id = message.from_user.id
+def approve_and_store_user(client, message):
+    try:
+        chat_id = message.chat.id
+        user_id = message.from_user.id
+        username = message.from_user.username
+        first_name = message.from_user.first_name
+        last_name = message.from_user.last_name
 
-    # Approve the join request
-    client.approve_chat_join_request(chat_id, user_id)
-    print(f"Approved join request for user {user_id}")
+        # Store user information in MongoDB
+        user_data = {
+            "user_id": user_id,
+            "username": username,
+            "first_name": first_name,
+            "last_name": last_name,
+            "chat_id": chat_id
+        }
+        users_collection.insert_one(user_data)
+        print(f"Stored user {user_id} in MongoDB")
+
+        # Approve the join request
+        client.approve_chat_join_request(chat_id, user_id)
+        print(f"Approved join request for user {user_id}")
+
+    except PyMongoError as e:
+        print(f"Failed to store user {user_id} in MongoDB: {e}")
+
+    except errors.RPCError as e:
+        print(f"Failed to approve join request for user {user_id}: {e}")
+
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+
 
 if __name__ == "__main__":
     Bot.run()

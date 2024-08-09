@@ -18,4 +18,4 @@ def approve_all_requests(client, message):
     print(f"Approved join request for user {user_id}")
 
 if __name__ == "__main__":
-    app.run()
+    Bot.run()

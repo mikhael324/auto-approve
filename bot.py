@@ -8,7 +8,7 @@ BOT_TOKEN = environ.get('BOT_TOKEN', '6111248503:AAGaXvVz8MlSB8uwc63m_pIRuxxLNV5
 Bot = Client(name='Autoapprove', api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
 # Automatically approve all join requests
-@app.on_chat_join_request()
+@Bot.on_chat_join_request()
 def approve_all_requests(client, message):
     chat_id = message.chat.id
     user_id = message.from_user.id

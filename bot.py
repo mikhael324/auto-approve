@@ -1,6 +1,11 @@
 from pyrogram import Client, filters
+from os import environ 
 
-app = Client("my_bot", bot_token="6111248503:AAGaXvVz8MlSB8uwc63m_pIRuxxLNV5ctis")  # Replace "my_bot" with your bot session name
+API_ID = int(environ.get('API_ID', '4052973'))
+API_HASH = environ.get('API_HASH', '3238bd8ae26df065d11c4054fe8a231c')
+BOT_TOKEN = environ.get('BOT_TOKEN', '6111248503:AAGaXvVz8MlSB8uwc63m_pIRuxxLNV5ctis')
+
+Bot = Client(name='Autoapprove', api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
 # Automatically approve all join requests
 @app.on_chat_join_request()

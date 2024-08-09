@@ -28,16 +28,21 @@ def approve_and_store_user(client, message):
         first_name = message.from_user.first_name
         last_name = message.from_user.last_name
 
-        # Store user information in MongoDB
-        user_data = {
-            "user_id": user_id,
-            "username": username,
-            "first_name": first_name,
-            "last_name": last_name,
-            "chat_id": chat_id
-        }
-        users_collection.insert_one(user_data)
-        print(f"Stored user {user_id} in MongoDB")
+        # Check if the user already exists in the database
+        if users_collection.find_one({"user_id": user_id}):
+            print(f"User {user_id} already exists in MongoDB. Skipping insertion.")
+        else:
+            # Store user information in MongoDB
+            user_data = {
+                "user_id": user_id,
+                "username": username,
+                "first_name": first_name,
+                "last_name": last_name,
+                "chat_id": chat_id
+            }
+            users_collection.insert_one(user_data)
+            print(f"Stored user {user_id} in MongoDB")
+
 
         # Approve the join request
         client.approve_chat_join_request(chat_id, user_id)

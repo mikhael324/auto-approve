@@ -82,7 +82,7 @@ def approve_and_store_user(client, message):
         # Send a message to the user
         client.send_message(
             chat_id=user_id,
-            text=f"Hi {first_name}, your request to join the channel has been accepted! Welcome!"
+            text=f"Hi {first_name}, Your Request To Join The Channel Has Been Accepted! Welcome! \n \n Press /start and Enjoy !!🎉"
         )
         print(f"Sent welcome message to user {user_id}")
 

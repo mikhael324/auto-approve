@@ -21,10 +21,6 @@ except PyMongoError as e:
     print(f"Failed to connect to MongoDB: {e}")
     exit(1)  # Exit if the database connection fails
 
-# Dictionary to store the admin ID and the step in the broadcast process
-broadcast_sessions = {}
-    
-
 # Automatically approve all join requests
 @Bot.on_chat_join_request()
 def approve_and_store_user(client, message):
@@ -71,7 +67,7 @@ def approve_and_store_user(client, message):
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
 
-@Bot.on_message(filters.command("broadcast") & filters.private)
+@Bot.on_message(filters.command("broadcast") & filters.private & filters.reply)
 def start_broadcast(client, message):
     user_id = message.from_user.id
 
@@ -81,24 +77,13 @@ def start_broadcast(client, message):
         print(f"User {user_id} tried to use /broadcast without permission.")
         return
 
-    # Start the broadcast process by asking for the broadcast message
-    message.reply_text("Please reply with the message you want to broadcast.")
-    broadcast_sessions[user_id] = {"status": "awaiting_message"}
-    print(f"User {user_id} started a broadcast session.")
+    # Get the message to broadcast (the message that the admin replied to)
+    broadcast_message = message.reply_to_message.text
 
-@Bot.on_message(filters.private & filters.reply)
-def receive_broadcast_message(client, message):
-    user_id = message.from_user.id
-
-    # Check if the user is in a broadcast session
-    if user_id in broadcast_sessions and broadcast_sessions[user_id]["status"] == "awaiting_message":
-        # Proceed with the broadcast
-        broadcast_message = message.text
-
-        # Initialize counters
-        success_count = 0
-        failed_count = 0
-        blocked_count = 0
+    # Initialize counters
+    success_count = 0
+    failed_count = 0
+    blocked_count = 0
         # Send the broadcast message to all users in the database
         try:
             users = users_collection.find({})

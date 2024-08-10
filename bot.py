@@ -181,7 +181,7 @@ def start_broadcast(client, message):
         )
         print(f"Broadcast by user {user_id} completed.")
 
-    except mongo_errors.PyMongoError as e:
+    except PyMongoError as e:
         print(f"Failed to retrieve users from MongoDB: {e}")
         message.reply_text("An error occurred while retrieving the users.")
 

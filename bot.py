@@ -97,67 +97,26 @@ def approve_and_store_user(client, message):
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
 
-@Bot.on_message(filters.command("broadcast") & filters.private & filters.reply)
-def start_broadcast(client, message):
-    user_id = message.from_user.id
-
-    # Check if the user is in the custom admin list
-    if user_id not in custom_admins:
-        message.reply_text("You don't have the required permissions to use this command.")
-        print(f"User {user_id} tried to use /broadcast without permission.")
-        return
-
-    # Get the message to broadcast (the message that the admin replied to)
-    broadcast_message = message.reply_to_message.text
-
-    # Initialize counters
-    success_count = 0
-    failed_count = 0
-    blocked_count = 0
-
-    # Send the broadcast message to all users in the database
+async def broadcast_messages(client, user_id, broadcast_message):
     try:
-        users = users_collection.find({})
-        total_users = users.count()
-        message.reply_text(f"Broadcasting to {total_users} users...")
-
-        for i, user in enumerate(users, start=1):
-            try:
-                client.send_message(
-                    chat_id=user["user_id"],
-                    text=broadcast_message
-                )
-                    
-                success_count += 1
-                print(f"[{i}/{total_users}] Success: Broadcasted message to user {user['user_id']}")
-            except errors.UserIsBlocked:
-                blocked_count += 1
-                print(f"[{i}/{total_users}] Blocked: User {user['user_id']} has blocked the bot.")
-            except errors.RPCError as e:
-                failed_count += 1
-                print(f"[{i}/{total_users}] Failed: Could not send message to user {user['user_id']} due to error: {e}")
-
-            # Update admin with progress every 10 users or at the end
-            if i % 10 == 0 or i == total_users:
-                message.reply_text(f"Progress: {i}/{total_users} - Success: {success_count}, Failed: {failed_count}, Blocked: {blocked_count}")
-                time.sleep(1)  # Prevent Telegram from limiting requests
-
-        # Final status report
-        message.reply_text(
-            f"Broadcast completed.\nTotal: {total_users}\n"
-            f"Success: {success_count}\nFailed: {failed_count}\nBlocked: {blocked_count}"
-        )
-        print(f"Broadcast by user {user_id} completed.")
-
-    except PyMongoError as e:
-        print(f"Failed to retrieve users from MongoDB: {e}")
-        message.reply_text("An error occurred while retrieving the users.")
-
+        await broadcast_message.copy(chat_id=user_id)
+        return True, "Success"
+    except FloodWait as e:
+        logging.warning(f"FloodWait: Sleeping for {e.x} seconds for user {user_id}")
+        await asyncio.sleep(e.x)
+        return await broadcast_messages(client, user_id, broadcast_message)
+    except InputUserDeactivated:
+        await users_collection.delete_one({"user_id": user_id})
+        logging.info(f"{user_id} - Removed from Database, since deleted account.")
+        return False, "Deleted"
+    except UserIsBlocked:
+        logging.info(f"{user_id} - Blocked the bot.")
+        return False, "Blocked"
     except Exception as e:
-        print(f"An unexpected error occurred during broadcast: {e}")
-        message.reply_text("An unexpected error occurred during the broadcast.")
-        
-                
+        logging.error(f"An unexpected error occurred for user {user_id}: {e}")
+        return False, "Error"
+
+
 
 @Bot.on_message(filters.command("stats") & filters.private)
 def stats_command(client, message):

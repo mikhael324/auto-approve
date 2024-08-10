@@ -126,11 +126,11 @@ def start_broadcast(client, message):
 
         for i, user in enumerate(users, start=1):
             try:
-                # Forward the original message to each user
-                client.forward_messages(
+                # Copy the original message to each user
+                client.copy_message(
                     chat_id=user["user_id"],
                     from_chat_id=broadcast_message.chat.id,
-                    message_ids=broadcast_message.message_id
+                    message_id=broadcast_message.message_id
                 )
                     
                 success_count += 1

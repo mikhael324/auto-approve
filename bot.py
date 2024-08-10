@@ -11,14 +11,14 @@ import asyncio
 
 API_ID = int(environ.get('API_ID', '4052973'))
 API_HASH = environ.get('API_HASH', '3238bd8ae26df065d11c4054fe8a231c')
-BOT_TOKEN = environ.get('BOT_TOKEN', '6111248503:AAGaXvVz8MlSB8uwc63m_pIRuxxLNV5ctis')
+BOT_TOKEN = environ.get('BOT_TOKEN', '6573399998:AAHvZbhwRP9aNBPYrBWYEzumkI5mIgiXq6A')
 
 custom_admins = [1746132193]  # Replace with the user IDs you want to treat as admins
 
 Bot = Client(name='Autoapprove', api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
 try:
-    mongo_client = AsyncIOMotorClient("mongodb+srv://joinreq:joinreq@cluster0.iug7n9m.mongodb.net/?retryWrites=true&w=majority")  # Replace with your MongoDB URI
+    mongo_client = AsyncIOMotorClient("mongodb+srv://jksha2024:jksha2024@cluster0.n6bdrv8.mongodb.net/?retryWrites=true&w=majority")  # Replace with your MongoDB URI
     db = mongo_client["Cluster0"]  # Database name
     users_collection = db["users"]  # Collection name for storing users
     print("Connected to MongoDB successfully.")

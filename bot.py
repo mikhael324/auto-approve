@@ -131,7 +131,7 @@ def receive_broadcast_message(client, message):
             )
             print(f"Broadcast by user {user_id} completed.")
 
-        except mongo_errors.PyMongoError as e:
+        except PyMongoError as e:
             print(f"Failed to retrieve users from MongoDB: {e}")
             message.reply_text("An error occurred while retrieving the users.")
 
@@ -165,7 +165,7 @@ def stats_command(client, message):
         print(f"Failed to check user permissions or retrieve stats: {e}")
         message.reply_text("Sorry, an error occurred while retrieving the stats or checking permissions.")
 
-    except mongo_errors.PyMongoError as e:
+    except PyMongoError as e:
         print(f"Failed to retrieve stats from MongoDB: {e}")
         message.reply_text("Sorry, an error occurred while retrieving the stats.")
 

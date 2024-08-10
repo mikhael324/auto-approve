@@ -137,7 +137,7 @@ async def start_broadcast(client, message):
     success_count = 0
     failed_count = 0
     blocked_count = 0
-    total_users = await users_collection.count_documents({})
+    total_users = users_collection.count_documents({})
 
     await message.reply_text(f"Broadcasting to {total_users} users...")
 

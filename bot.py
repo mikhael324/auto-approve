@@ -121,10 +121,45 @@ def start_broadcast(client, message):
 
         for i, user in enumerate(users, start=1):
             try:
-                client.send_message(
-                    chat_id=user["user_id"],
-                    text=broadcast_message
-                )
+                # Handle different types of media and text
+                if broadcast_message.photo:
+                    client.send_photo(
+                        chat_id=user["user_id"],
+                        photo=broadcast_message.photo.file_id,
+                        caption=broadcast_message.caption if broadcast_message.caption else "",
+                        reply_markup=broadcast_message.reply_markup
+                    )
+                elif broadcast_message.video:
+                    client.send_video(
+                        chat_id=user["user_id"],
+                        video=broadcast_message.video.file_id,
+                        caption=broadcast_message.caption if broadcast_message.caption else "",
+                        reply_markup=broadcast_message.reply_markup
+                    )
+                elif broadcast_message.audio:
+                    client.send_audio(
+                        chat_id=user["user_id"],
+                        audio=broadcast_message.audio.file_id,
+                        caption=broadcast_message.caption if broadcast_message.caption else "",
+                        reply_markup=broadcast_message.reply_markup
+                    )
+                elif broadcast_message.document:
+                    client.send_document(
+                        chat_id=user["user_id"],
+                        document=broadcast_message.document.file_id,
+                        caption=broadcast_message.caption if broadcast_message.caption else "",
+                        reply_markup=broadcast_message.reply_markup
+                    )
+                elif broadcast_message.text:
+                    client.send_message(
+                        chat_id=user["user_id"],
+                        text=broadcast_message.text,
+                        reply_markup=broadcast_message.reply_markup
+                    )
+                else:
+                    print(f"Unsupported message type for broadcast: {broadcast_message}")
+                    continue
+                    
                 success_count += 1
                 print(f"[{i}/{total_users}] Success: Broadcasted message to user {user['user_id']}")
             except errors.UserIsBlocked:

@@ -71,6 +71,21 @@ def approve_and_store_user(client, message):
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
 
+@Bot.on_message(filters.command("broadcast") & filters.private)
+def start_broadcast(client, message):
+    user_id = message.from_user.id
+
+    # Check if the user is in the custom admin list
+    if user_id not in custom_admins:
+        message.reply_text("You don't have the required permissions to use this command.")
+        print(f"User {user_id} tried to use /broadcast without permission.")
+        return
+
+    # Start the broadcast process by asking for the broadcast message
+    message.reply_text("Please reply with the message you want to broadcast.")
+    broadcast_sessions[user_id] = {"status": "awaiting_message"}
+    print(f"User {user_id} started a broadcast session.")
+
 @Bot.on_message(filters.command("stats") & filters.private)
 def stats_command(client, message):
     try:
@@ -82,7 +97,7 @@ def stats_command(client, message):
 
         # Count the number of users in the MongoDB collection
         user_count = users_collection.count_documents({})
-        message.reply_text(f"Total Users : {user_count} 🔥🔥.")
+        message.reply_text(f"⚧️ Total Users : {user_count}")
         print(f"Custom admin {message.from_user.id} requested stats: {user_count} users in the database.")
 
     except errors.RPCError as e:

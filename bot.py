@@ -1,6 +1,7 @@
 from pyrogram import Client, filters, errors
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from pymongo import MongoClient
+from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo.errors import PyMongoError
 from pyrogram.errors import FloodWait, InputUserDeactivated, UserIsBlocked
 from os import environ 
@@ -17,7 +18,7 @@ custom_admins = [1746132193]  # Replace with the user IDs you want to treat as a
 Bot = Client(name='Autoapprove', api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
 try:
-    mongo_client = MongoClient("mongodb+srv://joinreq:joinreq@cluster0.iug7n9m.mongodb.net/?retryWrites=true&w=majority")  # Replace with your MongoDB URI
+    mongo_client = AsyncIOMotorClient("mongodb+srv://joinreq:joinreq@cluster0.iug7n9m.mongodb.net/?retryWrites=true&w=majority")  # Replace with your MongoDB URI
     db = mongo_client["Cluster0"]  # Database name
     users_collection = db["users"]  # Collection name for storing users
     print("Connected to MongoDB successfully.")

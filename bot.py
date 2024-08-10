@@ -86,6 +86,20 @@ def start_broadcast(client, message):
     broadcast_sessions[user_id] = {"status": "awaiting_message"}
     print(f"User {user_id} started a broadcast session.")
 
+@Bot.on_message(filters.private & filters.reply)
+def receive_broadcast_message(client, message):
+    user_id = message.from_user.id
+
+    # Check if the user is in a broadcast session
+    if user_id in broadcast_sessions and broadcast_sessions[user_id]["status"] == "awaiting_message":
+        # Proceed with the broadcast
+        broadcast_message = message.text
+
+        # Initialize counters
+        success_count = 0
+        failed_count = 0
+        blocked_count = 0
+
 @Bot.on_message(filters.command("stats") & filters.private)
 def stats_command(client, message):
     try:

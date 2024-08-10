@@ -55,7 +55,7 @@ def start(client, message):
 
 # Automatically approve all join requests
 @Bot.on_chat_join_request()
-def approve_and_store_user(client, message):
+async def approve_and_store_user(client, message):
     try:
         chat_id = message.chat.id
         user_id = message.from_user.id
@@ -64,8 +64,9 @@ def approve_and_store_user(client, message):
         last_name = message.from_user.last_name
 
         # Check if the user already exists in the database
-        if users_collection.find_one({"user_id": user_id}):
-            print(f"User {user_id} already exists in MongoDB. Skipping insertion.")
+        user = await users_collection.find_one({"user_id": user_id})
+        if user:
+            logging.info(f"User {user_id} already exists in MongoDB. Skipping insertion.")
         else:
             # Store user information in MongoDB
             user_data = {
@@ -75,29 +76,23 @@ def approve_and_store_user(client, message):
                 "last_name": last_name,
                 "chat_id": chat_id
             }
-            users_collection.insert_one(user_data)
-            print(f"Stored user {user_id} in MongoDB")
-
+            await users_collection.insert_one(user_data)
+            logging.info(f"Stored user {user_id} in MongoDB")
 
         # Approve the join request
-        client.approve_chat_join_request(chat_id, user_id)
-        print(f"Approved join request for user {user_id}")
-        
+        await client.approve_chat_join_request(chat_id, user_id)
+        logging.info(f"Approved join request for user {user_id}")
+
         # Send a message to the user
-        client.send_message(
+        await client.send_message(
             chat_id=user_id,
             text=f"Hi {first_name}, Your Request To Join The Channel Has Been Accepted! Welcome! \n \n Press /start and Enjoy !!🎉"
         )
-        print(f"Sent welcome message to user {user_id}")
-
-    except PyMongoError as e:
-        print(f"Failed to store user {user_id} in MongoDB: {e}")
-
-    except errors.RPCError as e:
-        print(f"Failed to approve join request for user {user_id}: {e}")
+        logging.info(f"Sent welcome message to user {user_id}")
 
     except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+        logging.error(f"An unexpected error occurred: {e}")
+
 
 async def broadcast_messages(client, user_id, broadcast_message):
     try:

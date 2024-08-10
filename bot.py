@@ -126,12 +126,18 @@ def start_broadcast(client, message):
 
         for i, user in enumerate(users, start=1):
             try:
-                # Copy the original message to each user
-                client.copy_message(
-                    chat_id=user["user_id"],
-                    from_chat_id=broadcast_message.chat.id,
-                    message_id=broadcast_message.message_id
-                )
+                if broadcast_message.text:
+                    # Send the text message directly
+                    client.send_message(
+                        chat_id=user["user_id"],
+                        text=broadcast_message.text,
+                        parse_mode="html"
+                    )
+                else:
+                    # Handle other media types like photos, videos, etc.
+                    broadcast_message.copy(
+                        chat_id=user["user_id"]
+                    )
                     
                 success_count += 1
                 print(f"[{i}/{total_users}] Success: Broadcasted message to user {user['user_id']}")

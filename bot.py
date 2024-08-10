@@ -106,25 +106,30 @@ def start_broadcast(client, message):
         return
 
     # Get the message to broadcast (the message that the admin replied to)
-    broadcast_message = message.reply_to_message.text
+    broadcast_message = message.reply_to_message
+
+    if not broadcast_message:
+        message.reply_text("Please reply to a message to broadcast.")
+        return
 
     # Initialize counters
     success_count = 0
     failed_count = 0
     blocked_count = 0
 
-    # Send the broadcast message to all users in the database
     try:
-        users = users_collection.find({})
-        total_users = users.count()
+        # Use count_documents instead of count
+        total_users = users_collection.count_documents({})
         message.reply_text(f"Broadcasting to {total_users} users...")
+
+        users = users_collection.find({})
 
         for i, user in enumerate(users, start=1):
             try:
                 # Forward the original message to each user
                 client.forward_messages(
                     chat_id=user["user_id"],
-                    from_chat_id=user_id,
+                    from_chat_id=broadcast_message.chat.id,
                     message_ids=broadcast_message.message_id
                 )
                     

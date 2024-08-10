@@ -20,7 +20,7 @@ Bot = Client(name='Autoapprove', api_id=API_ID, api_hash=API_HASH, bot_token=BOT
 try:
     mongo_client = AsyncIOMotorClient("mongodb+srv://jksha2024:jksha2024@cluster0.n6bdrv8.mongodb.net/?retryWrites=true&w=majority")  # Replace with your MongoDB URI
     db = mongo_client["Cluster0"]  # Database name
-    users_collection = db["users"]  # Collection name for storing users
+    users_collection = db["Telegram_Users"]  # Collection name for storing users
     print("Connected to MongoDB successfully.")
 except PyMongoError as e:
     print(f"Failed to connect to MongoDB: {e}")

@@ -99,6 +99,27 @@ def receive_broadcast_message(client, message):
         success_count = 0
         failed_count = 0
         blocked_count = 0
+        # Send the broadcast message to all users in the database
+        try:
+            users = users_collection.find({})
+            total_users = users.count()
+            message.reply_text(f"Broadcasting to {total_users} users...")
+
+            for i, user in enumerate(users, start=1):
+                try:
+                    client.send_message(
+                        chat_id=user["user_id"],
+                        text=broadcast_message
+                    )
+                    success_count += 1
+                    print(f"[{i}/{total_users}] Success: Broadcasted message to user {user['user_id']}")
+                except errors.UserIsBlocked:
+                    blocked_count += 1
+                    print(f"[{i}/{total_users}] Blocked: User {user['user_id']} has blocked the bot.")
+                except errors.RPCError as e:
+                    failed_count += 1
+                    print(f"[{i}/{total_users}] Failed: Could not send message to user {user['user_id']} due to error: {e}")
+                
 
 @Bot.on_message(filters.command("stats") & filters.private)
 def stats_command(client, message):

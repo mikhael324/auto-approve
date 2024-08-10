@@ -119,6 +119,32 @@ def receive_broadcast_message(client, message):
                 except errors.RPCError as e:
                     failed_count += 1
                     print(f"[{i}/{total_users}] Failed: Could not send message to user {user['user_id']} due to error: {e}")
+                # Update admin with progress every 10 users or at the end
+                if i % 10 == 0 or i == total_users:
+                    message.reply_text(f"Progress: {i}/{total_users} - Success: {success_count}, Failed: {failed_count}, Blocked: {blocked_count}")
+                    time.sleep(1)  # Prevent Telegram from limiting requests
+
+            # Final status report
+            message.reply_text(
+                f"Broadcast completed.\nTotal: {total_users}\n"
+                f"Success: {success_count}\nFailed: {failed_count}\nBlocked: {blocked_count}"
+            )
+            print(f"Broadcast by user {user_id} completed.")
+
+        except mongo_errors.PyMongoError as e:
+            print(f"Failed to retrieve users from MongoDB: {e}")
+            message.reply_text("An error occurred while retrieving the users.")
+
+        except Exception as e:
+            print(f"An unexpected error occurred during broadcast: {e}")
+            message.reply_text("An unexpected error occurred during the broadcast.")
+
+        # Clear the broadcast session
+        broadcast_sessions.pop(user_id, None)
+    else:
+        # If no broadcast session is active, ignore the message
+        message.reply_text("No broadcast session is active. Please use /broadcast to start a new session.")
+    
                 
 
 @Bot.on_message(filters.command("stats") & filters.private)

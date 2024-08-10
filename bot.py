@@ -1,4 +1,5 @@
 from pyrogram import Client, filters, errors
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError
 from os import environ 
@@ -20,6 +21,33 @@ try:
 except PyMongoError as e:
     print(f"Failed to connect to MongoDB: {e}")
     exit(1)  # Exit if the database connection fails
+
+@Bot.on_message(filters.command("start") & filters.private)
+def start(client, message):
+    user_id = message.from_user.id
+
+    # Welcome the user with an image, message, and buttons
+    client.send_photo(
+        chat_id=user_id,
+        photo="https://graph.org/file/db66753a1eed955a7d7fc.jpg",
+        caption="Add Me To Your Group / Channel !! I Will Accept All The Upcoming Join Requests",
+        reply_markup=InlineKeyboardMarkup(
+            [
+                [
+                    InlineKeyboardButton(
+                        "⚜ Add To Channel ⚜", 
+                        url="http://t.me/auto_join_requests_accept_bot?startchannel=maeve_324&admin=invite_users+manage_chat"
+                    )
+                ],
+                [
+                    InlineKeyboardButton(
+                        "🔱 Add To Group 🔱", 
+                        url="https://t.me/auto_join_requests_accept_bot?startgroup=maeve_324&admin=invite_users+manage_chat"
+                    )
+                ]
+            ]
+        )
+    )
 
 # Automatically approve all join requests
 @Bot.on_chat_join_request()

@@ -106,38 +106,25 @@ def start_broadcast(client, message):
         return
 
     # Get the message to broadcast (the message that the admin replied to)
-    broadcast_message = message.reply_to_message
-
-    if not broadcast_message:
-        message.reply_text("Please reply to a message to broadcast.")
-        return
+    broadcast_message = message.reply_to_message.text
 
     # Initialize counters
     success_count = 0
     failed_count = 0
     blocked_count = 0
 
+    # Send the broadcast message to all users in the database
     try:
-        # Use count_documents instead of count
-        total_users = users_collection.count_documents({})
-        message.reply_text(f"Broadcasting to {total_users} users...")
-
         users = users_collection.find({})
+        total_users = users.count()
+        message.reply_text(f"Broadcasting to {total_users} users...")
 
         for i, user in enumerate(users, start=1):
             try:
-                if broadcast_message.text:
-                    # Send the text message directly
-                    client.send_message(
-                        chat_id=user["user_id"],
-                        text=broadcast_message.text,
-                        parse_mode="html"
-                    )
-                else:
-                    # Handle other media types like photos, videos, etc.
-                    broadcast_message.copy(
-                        chat_id=user["user_id"]
-                    )
+                client.send_message(
+                    chat_id=user["user_id"],
+                    text=broadcast_message
+                )
                     
                 success_count += 1
                 print(f"[{i}/{total_users}] Success: Broadcasted message to user {user['user_id']}")

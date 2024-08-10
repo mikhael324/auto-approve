@@ -84,52 +84,48 @@ def start_broadcast(client, message):
     success_count = 0
     failed_count = 0
     blocked_count = 0
-        # Send the broadcast message to all users in the database
-        try:
-            users = users_collection.find({})
-            total_users = users.count()
-            message.reply_text(f"Broadcasting to {total_users} users...")
 
-            for i, user in enumerate(users, start=1):
-                try:
-                    client.send_message(
-                        chat_id=user["user_id"],
-                        text=broadcast_message
-                    )
-                    success_count += 1
-                    print(f"[{i}/{total_users}] Success: Broadcasted message to user {user['user_id']}")
-                except errors.UserIsBlocked:
-                    blocked_count += 1
-                    print(f"[{i}/{total_users}] Blocked: User {user['user_id']} has blocked the bot.")
-                except errors.RPCError as e:
-                    failed_count += 1
-                    print(f"[{i}/{total_users}] Failed: Could not send message to user {user['user_id']} due to error: {e}")
-                # Update admin with progress every 10 users or at the end
-                if i % 10 == 0 or i == total_users:
-                    message.reply_text(f"Progress: {i}/{total_users} - Success: {success_count}, Failed: {failed_count}, Blocked: {blocked_count}")
-                    time.sleep(1)  # Prevent Telegram from limiting requests
+    # Send the broadcast message to all users in the database
+    try:
+        users = users_collection.find({})
+        total_users = users.count()
+        message.reply_text(f"Broadcasting to {total_users} users...")
 
-            # Final status report
-            message.reply_text(
-                f"Broadcast completed.\nTotal: {total_users}\n"
-                f"Success: {success_count}\nFailed: {failed_count}\nBlocked: {blocked_count}"
-            )
-            print(f"Broadcast by user {user_id} completed.")
+        for i, user in enumerate(users, start=1):
+            try:
+                client.send_message(
+                    chat_id=user["user_id"],
+                    text=broadcast_message
+                )
+                success_count += 1
+                print(f"[{i}/{total_users}] Success: Broadcasted message to user {user['user_id']}")
+            except errors.UserIsBlocked:
+                blocked_count += 1
+                print(f"[{i}/{total_users}] Blocked: User {user['user_id']} has blocked the bot.")
+            except errors.RPCError as e:
+                failed_count += 1
+                print(f"[{i}/{total_users}] Failed: Could not send message to user {user['user_id']} due to error: {e}")
 
-        except PyMongoError as e:
-            print(f"Failed to retrieve users from MongoDB: {e}")
-            message.reply_text("An error occurred while retrieving the users.")
+            # Update admin with progress every 10 users or at the end
+            if i % 10 == 0 or i == total_users:
+                message.reply_text(f"Progress: {i}/{total_users} - Success: {success_count}, Failed: {failed_count}, Blocked: {blocked_count}")
+                time.sleep(1)  # Prevent Telegram from limiting requests
 
-        except Exception as e:
-            print(f"An unexpected error occurred during broadcast: {e}")
-            message.reply_text("An unexpected error occurred during the broadcast.")
+        # Final status report
+        message.reply_text(
+            f"Broadcast completed.\nTotal: {total_users}\n"
+            f"Success: {success_count}\nFailed: {failed_count}\nBlocked: {blocked_count}"
+        )
+        print(f"Broadcast by user {user_id} completed.")
 
-        # Clear the broadcast session
-        broadcast_sessions.pop(user_id, None)
-    else:
-        # If no broadcast session is active, ignore the message
-        message.reply_text("No broadcast session is active. Please use /broadcast to start a new session.")
-    
+    except mongo_errors.PyMongoError as e:
+        print(f"Failed to retrieve users from MongoDB: {e}")
+        message.reply_text("An error occurred while retrieving the users.")
+
+    except Exception as e:
+        print(f"An unexpected error occurred during broadcast: {e}")
+        message.reply_text("An unexpected error occurred during the broadcast.")
+        
                 
 
 @Bot.on_message(filters.command("stats") & filters.private)

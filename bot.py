@@ -66,7 +66,7 @@ def approve_and_store_user(client, message):
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
 
-@app.on_message(filters.command("stats") & filters.private)
+@Bot.on_message(filters.command("stats") & filters.private)
 def stats_command(client, message):
     try:
         # Check if the user is in the custom admin list

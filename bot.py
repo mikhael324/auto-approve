@@ -1,9 +1,10 @@
 from pyrogram import Client, filters, errors
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from pymongo import MongoClient
-from pymongo.errors import PyMongoError
+from pymongo.errors import PyMongoError, FloodWait, InputUserDeactivated, UserIsBlocked
 from os import environ 
 import time
+import asyncio
 
 API_ID = int(environ.get('API_ID', '4052973'))
 API_HASH = environ.get('API_HASH', '3238bd8ae26df065d11c4054fe8a231c')

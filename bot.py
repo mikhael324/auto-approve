@@ -177,31 +177,28 @@ async def start_broadcast(client, message):
 
 
 
-@Bot.on_message(filters.command("stats") & filters.private)
-def stats_command(client, message):
+@app.on_message(filters.command("stats") & filters.private)
+async def stats_command(client, message):
     try:
         # Check if the user is in the custom admin list
         if message.from_user.id not in custom_admins:
-            message.reply_text("You don't have the required permissions to use this command.")
-            print(f"User {message.from_user.id} tried to use /stats without permission.")
+            await message.reply_text("You don't have the required permissions to use this command.")
+            logging.info(f"User {message.from_user.id} tried to use /stats without permission.")
             return
 
         # Count the number of users in the MongoDB collection
-        user_count = users_collection.count_documents({})
-        message.reply_text(f"⚧️ Total Users : {user_count}")
-        print(f"Custom admin {message.from_user.id} requested stats: {user_count} users in the database.")
+        user_count = await users_collection.count_documents({})
+        await message.reply_text(f"⚧️ Total Users : {user_count}")
+        logging.info(f"Custom admin {message.from_user.id} requested stats: {user_count} users in the database.")
 
-    except errors.RPCError as e:
-        print(f"Failed to check user permissions or retrieve stats: {e}")
-        message.reply_text("Sorry, an error occurred while retrieving the stats or checking permissions.")
-
-    except PyMongoError as e:
-        print(f"Failed to retrieve stats from MongoDB: {e}")
-        message.reply_text("Sorry, an error occurred while retrieving the stats.")
+    except RPCError as e:
+        logging.error(f"Failed to check user permissions or retrieve stats: {e}")
+        await message.reply_text("Sorry, an error occurred while retrieving the stats or checking permissions.")
 
     except Exception as e:
-        print(f"An unexpected error occurred: {e}")
-        message.reply_text("Sorry, an unexpected error occurred.")
+        logging.error(f"An unexpected error occurred: {e}")
+        await message.reply_text("Sorry, an unexpected error occurred.")
+
         
 
 

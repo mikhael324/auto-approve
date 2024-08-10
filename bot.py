@@ -116,6 +116,68 @@ async def broadcast_messages(client, user_id, broadcast_message):
         logging.error(f"An unexpected error occurred for user {user_id}: {e}")
         return False, "Error"
 
+@Bot.on_message(filters.command("broadcast") & filters.private & filters.reply)
+async def start_broadcast(client, message):
+    user_id = message.from_user.id
+
+    # Check if the user is in the custom admin list
+    if user_id not in custom_admins:
+        await message.reply_text("You don't have the required permissions to use this command.")
+        return
+
+    # Get the message to broadcast (the message that the admin replied to)
+    broadcast_message = message.reply_to_message
+
+    if not broadcast_message:
+        await message.reply_text("Please reply to a message to broadcast.")
+        return
+
+    # Initialize counters
+    success_count = 0
+    failed_count = 0
+    blocked_count = 0
+    total_users = await users_collection.count_documents({})
+
+    await message.reply_text(f"Broadcasting to {total_users} users...")
+
+    users = users_collection.find({})
+    
+    tasks = []
+    for user in users:
+        user_id = user["user_id"]
+        task = asyncio.create_task(broadcast_messages(client, user_id, broadcast_message))
+        tasks.append((task, user_id))
+
+    for i, (task, user_id) in enumerate(tasks, start=1):
+        success, status = await task
+
+        if success:
+            success_count += 1
+            logging.info(f"[{i}/{total_users}] Success: Broadcasted message to user {user_id}")
+        elif status == "Blocked":
+            blocked_count += 1
+            logging.info(f"[{i}/{total_users}] Blocked: User {user_id}")
+        elif status == "Deleted":
+            logging.info(f"[{i}/{total_users}] Deleted: User {user_id}")
+        else:
+            failed_count += 1
+            logging.error(f"[{i}/{total_users}] Failed: Could not send message to user {user_id}")
+
+        # Update admin with progress every 10 users or at the end
+        if i % 10 == 0 or i == total_users:
+            await message.reply_text(
+                f"Progress: {i}/{total_users} - "
+                f"Success: {success_count}, Failed: {failed_count}, Blocked: {blocked_count}"
+            )
+            await asyncio.sleep(1)  # Prevent Telegram from limiting requests
+
+    # Final status report
+    summary_message = (
+        f"Broadcast completed.\nTotal: {total_users}\n"
+        f"Success: {success_count}\nFailed: {failed_count}\nBlocked: {blocked_count}\n"
+    )
+    await message.reply_text(summary_message)
+
 
 
 @Bot.on_message(filters.command("stats") & filters.private)

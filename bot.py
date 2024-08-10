@@ -113,7 +113,7 @@ async def broadcast_messages(client, user_id, broadcast_message):
         logging.error(f"An unexpected error occurred for user {user_id}: {e}")
         return False, "Error"
 
-@app.on_message(filters.command("broadcast") & filters.private & filters.reply)
+@Bot.on_message(filters.command("broadcast") & filters.private & filters.reply)
 async def start_broadcast(client, message):
     user_id = message.from_user.id
 

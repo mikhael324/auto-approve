@@ -177,7 +177,7 @@ async def start_broadcast(client, message):
 
 
 
-@app.on_message(filters.command("stats") & filters.private)
+@Bot.on_message(filters.command("stats") & filters.private)
 async def stats_command(client, message):
     try:
         # Check if the user is in the custom admin list

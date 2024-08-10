@@ -113,7 +113,7 @@ async def broadcast_messages(client, user_id, broadcast_message):
         logging.error(f"An unexpected error occurred for user {user_id}: {e}")
         return False, "Error"
 
-@Bot.on_message(filters.command("broadcast") & filters.private & filters.reply)
+@app.on_message(filters.command("broadcast") & filters.private & filters.reply)
 async def start_broadcast(client, message):
     user_id = message.from_user.id
 
@@ -133,14 +133,14 @@ async def start_broadcast(client, message):
     success_count = 0
     failed_count = 0
     blocked_count = 0
-    total_users = users_collection.count_documents({})
+    total_users = await users_collection.count_documents({})
 
     await message.reply_text(f"Broadcasting to {total_users} users...")
 
     users = users_collection.find({})
     
     tasks = []
-    for user in users:
+    async for user in users:
         user_id = user["user_id"]
         task = asyncio.create_task(broadcast_messages(client, user_id, broadcast_message))
         tasks.append((task, user_id))

@@ -2,6 +2,7 @@ from pyrogram import Client, filters, errors
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError
 from os import environ 
+import time
 
 API_ID = int(environ.get('API_ID', '4052973'))
 API_HASH = environ.get('API_HASH', '3238bd8ae26df065d11c4054fe8a231c')
@@ -19,6 +20,10 @@ try:
 except PyMongoError as e:
     print(f"Failed to connect to MongoDB: {e}")
     exit(1)  # Exit if the database connection fails
+
+# Dictionary to store the admin ID and the step in the broadcast process
+broadcast_sessions = {}
+    
 
 # Automatically approve all join requests
 @Bot.on_chat_join_request()

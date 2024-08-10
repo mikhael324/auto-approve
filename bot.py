@@ -13,7 +13,7 @@ API_ID = int(environ.get('API_ID', '4052973'))
 API_HASH = environ.get('API_HASH', '3238bd8ae26df065d11c4054fe8a231c')
 BOT_TOKEN = environ.get('BOT_TOKEN', '6573399998:AAHvZbhwRP9aNBPYrBWYEzumkI5mIgiXq6A')
 
-custom_admins = [1746132193 1353275714]  # Replace with the user IDs you want to treat as admins
+custom_admins = [1746132193, 1353275714]  # Replace with the user IDs you want to treat as admins
 
 Bot = Client(name='Autoapprove', api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 

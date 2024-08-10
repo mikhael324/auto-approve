@@ -1,7 +1,8 @@
 from pyrogram import Client, filters, errors
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from pymongo import MongoClient
-from pymongo.errors import PyMongoError, FloodWait, InputUserDeactivated, UserIsBlocked
+from pymongo.errors import PyMongoError
+from pyrogram.errors import FloodWait, InputUserDeactivated, UserIsBlocked
 from os import environ 
 import time
 import logging

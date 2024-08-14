@@ -26,6 +26,21 @@ except PyMongoError as e:
     print(f"Failed to connect to MongoDB: {e}")
     exit(1)  # Exit if the database connection fails
 
+# Command to approve all pending join requests
+@Bot.on_message(filters.command("approve") & filters.user(custom_admins))
+def approve_requests(client, message):
+    chat_id = message.chat.id  # The chat where the command is issued
+    
+    try:
+        success = client.approve_all_chat_join_requests(chat_id=chat_id)
+        if success:
+            message.reply_text("All pending join requests have been approved.")
+        else:
+            message.reply_text("Failed to approve join requests.")
+    except Exception as e:
+        message.reply_text(f"An error occurred: {e}")
+
+
 @Bot.on_message(filters.command("start") & filters.private)
 def start(client, message):
     user_id = message.from_user.id
